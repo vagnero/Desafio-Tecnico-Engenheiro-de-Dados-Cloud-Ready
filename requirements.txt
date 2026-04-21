@@ -1,0 +1,15 @@
+# --- Ingestão (Bronze) ---
+requests==2.32.3
+urllib3==2.2.3
+
+# --- Processamento e Transformação (Silver/Gold) ---
+pyspark==3.5.2
+pandas==2.2.3
+pyarrow==18.0.0
+
+# --- Carga e Banco de Dados (Consumo) ---
+SQLAlchemy==2.0.36
+psycopg2-binary==2.9.10
+
+# --- Utilitários (Boas Práticas) ---
+python-dotenv==1.0.1
