@@ -13,8 +13,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Pegando as variáveis do .env (com um valor padrão de segurança caso o .env falhe)
 API_BASE_URL = os.getenv("API_BASE_URL")
 
-#Caminho do Staging Area
-STAGING_DIR = "data/staging/"
+#Caminho da Staging Area do "BUCKET S3"
+STAGING_DIR = "S3/data/staging/"
 
 def garantir_pasta_existe(caminho):
     """Cria a pasta se ela não existir no sistema"""
