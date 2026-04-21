@@ -4,6 +4,9 @@ Este repositório contém a resolução do Desafio Técnico de Engenharia de Dad
 
 O repositório entrega um **MVP (Produto Mínimo Viável) 100% funcional**, focado na ingestão *Batch*, emulando localmente (via Docker) como os componentes de uma arquitetura Cloud corporativa operariam na prática.
 
+**Link de vídeo explicando a solução:** https://drive.google.com/file/d/1PFWiAQ80eX94vjKuHrJc8xdC8XbwH2oY/view?usp=sharing
+**Link de apresentação do canva:** https://www.canva.com/design/DAHHcN9NVeo/RkxqGowMTakAw993z5R8yQ/edit
+
 ## 📐 Arquitetura do Projeto
 
 O diagrama abaixo ilustra a arquitetura completa desenhada para este desafio. Ela prevê fluxos de dados híbridos, suportando tanto o processamento **Batch** (cargas diárias) quanto **Streaming** (eventos em tempo real), garantindo a governança e a qualidade da informação em cada etapa.
