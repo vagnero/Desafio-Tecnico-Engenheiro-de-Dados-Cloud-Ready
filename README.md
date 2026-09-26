@@ -60,19 +60,18 @@ Scripts Python fazem a extração da API e permitem aplicar regras de tratamento
 Para eventos de alto volume e baixa latência, o Amazon Kinesis pode complementar o fluxo batch. O Data Streams desacopla produtores e consumidores, enquanto o Firehose pode entregar os eventos ao data lake.
 
 ### Armazenamento: Amazon S3 e arquitetura Medallion
-* **O Racional:** O S3 é o padrão da indústria devido ao seu armazenamento de objetos de custo quase zero e durabilidade de 99.999999911%. A separação lógica em camadas garante a evolução da maturidade do dado:
-  * **Staging Area:** Área efêmera de pouso dos dados.
-  * **Bronze (Raw):** Retém o dado cru exatamente como veio da fonte. Garante o histórico imutável e permite reprocessamento sem onerar as APIs ou bancos de origem.
-  * **Silver (Cleansed):** Dados higienizados, tipados e armazenados no formato colunar **Parquet**, otimizando a leitura e a compressão.
-  * **Gold (Curated):** Dados agregados, modelados em dimensões/fatos e contendo as métricas de negócios finais.
+O Amazon S3 é uma opção adequada para armazenar grandes volumes de objetos com alta durabilidade e baixo custo operacional. Em uma implantação em nuvem, as camadas do lakehouse poderiam ser organizadas da seguinte forma:
 
-### 5. Processamento e ACID: Databricks (Spark) + Apache Iceberg + AWS Glue
-* **O Racional:** Transformações pesadas e cruzamentos de dados entre as camadas exigem processamento distribuído, justificado pela escolha do **Databricks (Apache Spark)**. 
-* **Governança:** A adoção do formato aberto **Apache Iceberg** eleva o S3 de um simples "lago" para um *Lakehouse*, permitindo transações ACID (UPDATE/DELETE), *Time Travel* e evolução de *schema*. O **AWS Glue Data Catalog** entra como o grande dicionário corporativo, centralizando os metadados para evitar que o repositório se torne um "Data Swamp".
+- **Staging:** área temporária para receber os dados.
+- **Bronze:** preserva os dados brutos, mantendo o histórico e permitindo reprocessamentos.
+- **Silver:** contém dados limpos, tipados e armazenados em Parquet para melhorar a compressão e o desempenho das consultas.
+- **Gold:** reúne dados modelados e agregados para análise e consumo pelas áreas de negócio.
 
-### 6. Camada de Consumo (Serving): PostgreSQL
-* **O Racional:** Embora o Lakehouse permita consultas diretas em formatos como Parquet/Iceberg via motores como Amazon Athena, a persistência da camada Gold em um banco relacional garante baixa latência, alta concorrência e melhor experiência para ferramentas de BI. Além disso, permite aplicar modelagem analítica (ex: star schema), otimizando consultas frequentes e agregadas.
-* **Visão Prática:** O PostgreSQL foi escolhido por sua robustez, ampla compatibilidade com ferramentas como Power BI e Metabase, e facilidade de execução local via Docker para validação do MVP. Em ambiente produtivo, pode ser escalado com Amazon Aurora para maior desempenho e disponibilidade.
+### Processamento e governança: Spark, Iceberg e AWS Glue
+O MVP executa as transformações localmente, mas a arquitetura pode evoluir para o processamento distribuído com Apache Spark ou Databricks quando o volume de dados crescer. Apache Iceberg pode adicionar transações ACID, evolução de schema e histórico de versões às tabelas do lakehouse. Nesse cenário, o AWS Glue Data Catalog centraliza os metadados e facilita a descoberta e a governança dos dados.
+
+### Consumo: PostgreSQL
+O PostgreSQL recebe os dados da camada Gold e oferece uma interface simples para consultas analíticas e integração com ferramentas como Power BI e Metabase. Essa escolha também torna o MVP fácil de executar localmente com Docker. Em produção, a mesma camada poderia ser disponibilizada por um serviço gerenciado, como o Amazon Aurora, ou consultada diretamente no lakehouse por meio de ferramentas como o Amazon Athena.
 
 ---
 
