@@ -1,49 +1,65 @@
-# 🎲 Data Lakehouse Pipeline - Engenharia de Dados (Cloud-Ready)
+# Data Lakehouse Pipeline: Engenharia de Dados Cloud-Ready
 
-Este repositório contém a resolução do Desafio Técnico de Engenharia de Dados. O projeto demonstra a construção de um pipeline analítico end-to-end, adotando a arquitetura **Medallion (Lakehouse)**. O foco principal é a aplicação de boas práticas de engenharia de dados, modularidade, governança e escalabilidade para ambientes em nuvem.
+Este projeto apresenta um pipeline analítico de e-commerce, desenvolvido em Python e executado localmente com Docker. A solução segue a arquitetura **Medallion**, organizando os dados nas camadas Bronze, Silver e Gold para demonstrar um fluxo completo de ingestão, transformação e disponibilização.
 
-O repositório entrega um **MVP (Produto Mínimo Viável) 100% funcional**, focado na ingestão *Batch*, emulando localmente (via Docker) como os componentes de uma arquitetura Cloud corporativa operariam na prática.
+O objetivo é mostrar como uma solução de dados pode ser estruturada de forma modular, observável e preparada para evoluir de um ambiente local para serviços gerenciados em nuvem. O MVP implementa o processamento em lote e simula localmente componentes que poderiam ser executados na AWS.
 
-**Link de vídeo explicando a solução:** https://drive.google.com/file/d/1PFWiAQ80eX94vjKuHrJc8xdC8XbwH2oY/view?usp=sharing (em 7:40 do vídeo comeca o exemplo prático)
+Este projeto foi originalmente desenvolvido como um teste de processo seletivo para uma empresa. O material foi adaptado para compor meu portfólio, preservando a solução técnica e os recursos que ajudam a demonstrar seu funcionamento.
 
-**Link de apresentação do canva:** https://www.canva.com/design/DAHHcN9NVeo/RkxqGowMTakAw993z5R8yQ/edit
+## Materiais complementares
 
-## 📐 Arquitetura do Projeto
+- [Vídeo demonstrativo da solução](https://drive.google.com/file/d/1PFWiAQ80eX94vjKuHrJc8xdC8XbwH2oY/view?usp=sharing): mantido para mostrar o pipeline em funcionamento. A demonstração prática começa em aproximadamente 7:40.
+- [Apresentação do projeto](https://www.canva.com/design/DAHHcN9NVeo/RkxqGowMTakAw993z5R8yQ/edit)
 
-O diagrama abaixo ilustra a arquitetura completa desenhada para este desafio. Ela prevê fluxos de dados híbridos, suportando tanto o processamento **Batch** (cargas diárias) quanto **Streaming** (eventos em tempo real), garantindo a governança e a qualidade da informação em cada etapa.
+## Visão geral
 
-![Diagrama da Arquitetura](/src/images/WINOVER_DESAFIO.png)
+- Ingestão de dados de uma API pública de e-commerce.
+- Armazenamento do dado bruto na camada Bronze.
+- Limpeza, padronização e conversão para Parquet na camada Silver.
+- Modelagem e agregações analíticas na camada Gold.
+- Orquestração do fluxo com Apache Airflow.
+- Disponibilização dos dados analíticos em PostgreSQL para consumo por ferramentas de BI.
+
+## Arquitetura do projeto
+
+O diagrama representa uma arquitetura híbrida, com suporte a processamento **Batch** e possibilidade de evolução para **Streaming**. Cada etapa possui uma responsabilidade clara, facilitando a manutenção, o reprocessamento e a expansão da solução.
+
+![Diagrama da arquitetura](src/images/desafio-engenharia-de-dados.jpg)
 
 ---
 
-## 🚦 Imagens mostrando o fluxo de transformações de dados (usando o formato json para exibir até mesmo formatos parquet)
+## Fluxo de transformação dos dados
 
-**1. CAMADA BRONZE | Dados em formato Json extraidos pela API:**
-![Dados em formato Json extraidos pela API](/src/images/exempro_bronze_rawdata_json.png)
+As imagens abaixo mostram o resultado de cada etapa do pipeline. Os arquivos Parquet são apresentados em formato JSON apenas para facilitar a visualização no repositório.
 
-**2. CAMADA SILVER | Dados em formato parquet transformados em SILVER**
-![Dados em formato parquet transformados em SILVER](/src/images/exempro_silver_transformation_parquet.png)
+### 1. Bronze: dados brutos
+Dados extraídos da API e preservados no formato original.
+![Dados brutos extraídos da API](src/images/exempro_bronze_rawdata_json.png)
 
-**3. CAMADA GOLD | Dados em formato parquet transformados em GOLD**
-![Dados em formato parquet transformados em SILVER](/src/images/exempro_gold_transformation_parquet.png)
+### 2. Silver: dados tratados
+Dados tipados, padronizados e convertidos para o formato Parquet.
+![Dados tratados na camada Silver](src/images/exempro_silver_transformation_parquet.png)
+
+### 3. Gold: dados analíticos
+Dados modelados e preparados para consultas e indicadores de negócio.
+![Dados analíticos na camada Gold](src/images/exempro_gold_transformation_parquet.png)
 
 ---
 
-## 🛠️ Decisões Arquiteturais e Stack Tecnológica
+## Decisões arquiteturais e stack tecnológica
 
-A construção desta arquitetura não foi baseada apenas em "ferramentas da moda", mas sim em decisões pragmáticas focadas em entrega de valor, custo-benefício e facilidade de demonstração prática. Abaixo detalho o racional de cada escolha:
+As escolhas técnicas priorizam modularidade, baixo acoplamento, facilidade de execução e possibilidade de migração para uma arquitetura gerenciada.
 
-### 1. Orquestração: Apache Airflow
-* **O Racional:** O Airflow é o "maestro" indiscutível da orquestração de dados. Ele foi escolhido (e seria a minha escolha independentemente da facilidade de simulação) pela sua capacidade madura de gerenciar grafos de dependência complexos (DAGs), garantir a idempotência, controlar retentativas e prover um monitoramento visual claro. Em uma esteira Cloud real, este componente seria facilmente substituído pelo serviço gerenciado Amazon MWAA (Managed Workflows for Apache Airflow).
+### Orquestração: Apache Airflow
+O Airflow coordena as dependências entre ingestão, transformação e carga, além de oferecer retentativas e monitoramento visual. Em uma implantação AWS, essa função poderia ser executada pelo Amazon MWAA.
 
-### 2. Ingestão Batch: Scripts Python (Simulando AWS Lambda)
-* **O Racional:** Para a esteira *Batch* (APIs, bancos relacionais e arquivos planos), a escolha por scripts Python puros oferece extrema flexibilidade no tratamento de exceções e regras de extração personalizadas. 
-* **Visão Prática e Cloud:** No desenho da arquitetura, esses scripts representam funções **AWS Lambda**. Optar por esse padrão permite uma demonstração prática local perfeita no MVP, enquanto na nuvem garante uma ingestão *Serverless* e elástica, onde o custo existe apenas durante os segundos de execução.
+### Ingestão batch: Python
+Scripts Python fazem a extração da API e permitem aplicar regras de tratamento específicas com controle explícito de erros. Em um ambiente AWS, essa etapa poderia ser executada com AWS Lambda.
 
-### 3. Ingestão Streaming: Amazon Kinesis (Data Streams & Firehose)
-* **O Racional:** Para fontes geradoras de alto volume e velocidade (Logs, IoT, cliques de E-commerce), a ingestão *Batch* tradicional é ineficiente. O **Kinesis Data Streams** atua como um *buffer* de alta capacidade para desacoplar produtores e consumidores. Em seguida, o **Kinesis Firehose** coleta, compacta e descarrega esses eventos diretamente no Data Lake (S3) de forma totalmente gerenciada, sem a necessidade de administrar servidores de ingestão.
+### Ingestão streaming: Amazon Kinesis
+Para eventos de alto volume e baixa latência, o Amazon Kinesis pode complementar o fluxo batch. O Data Streams desacopla produtores e consumidores, enquanto o Firehose pode entregar os eventos ao data lake.
 
-### 4. Armazenamento Lakehouse: Amazon S3 (Medallion Architecture)
+### Armazenamento: Amazon S3 e arquitetura Medallion
 * **O Racional:** O S3 é o padrão da indústria devido ao seu armazenamento de objetos de custo quase zero e durabilidade de 99.999999911%. A separação lógica em camadas garante a evolução da maturidade do dado:
   * **Staging Area:** Área efêmera de pouso dos dados.
   * **Bronze (Raw):** Retém o dado cru exatamente como veio da fonte. Garante o histórico imutável e permite reprocessamento sem onerar as APIs ou bancos de origem.
@@ -60,61 +76,64 @@ A construção desta arquitetura não foi baseada apenas em "ferramentas da moda
 
 ---
 
-## 💻 Como Executar o MVP Local (Simulação Cloud-Ready)
+## Como executar localmente
 
-> **Nota Técnica:** Para fins de avaliação, o pipeline de dados foi encapsulado utilizando **Docker e Docker Compose**. Isso abstrai a complexidade de instalação de componentes como Spark, Java e Airflow, garantindo que o ambiente rode perfeitamente de forma idêntica à máquina do desenvolvedor.
+O ambiente é encapsulado com Docker Compose para reduzir a quantidade de dependências locais e reproduzir o pipeline de forma consistente.
 
-**Passo a passo:**
+### Pré-requisitos
+
+- Docker e Docker Compose.
+- Git.
+
+### Passo a passo
 
 1. Clone este repositório:
+
    ```bash
    git clone https://github.com/vagnero/Desafio-Tecnico-Engenheiro-de-Dados-Cloud-Ready.git
+   cd Desafio-Tecnico-Engenheiro-de-Dados-Cloud-Ready
+   ```
 
-  2. **Configure as variáveis de ambiente:**
-   - Crie um arquivo chamado `.env` na raiz do projeto.
-   - Copie o conteúdo a seguir:
-   
+2. Crie um arquivo `.env` na raiz do projeto com:
 
-API_BASE_URL=https://dummyjson.com
-
-
-DB_HOST=localhost
-DB_PORT=5433
-DB_USER=airflow
-DB_PASS=airflow
-DB_NAME=camada_gold
-
-    e cole e cole no seu novo `.env`.
+   ```env
+   API_BASE_URL=https://dummyjson.com
+   DB_HOST=localhost
+   DB_PORT=5433
+   DB_USER=airflow
+   DB_PASS=airflow
+   DB_NAME=camada_gold
+   ```
 
 
-3. **Construa a imagem do Docker:**
+3. Construa as imagens:
+
    ```bash
    docker-compose build
    ```
-4. **Suba a infraestrutura completa (Airflow e PostgreSQL):**
+
+4. Inicie o Airflow e o PostgreSQL:
+
    ```bash
    docker-compose up -d
    ```
 
-5. **Acesse a interface do Apache Airflow no seu navegador:**
-   - **URL:** `http://localhost:8080`
-   - **Usuário:** `admin`
-   - **Senha:** `admin`
+5. Acesse o Airflow em `http://localhost:8080` usando `admin` como usuário e senha.
 
-6. **Inicie o Pipeline:**
-   - Na lista de DAGs, localize a `pipeline_ecommerce_medallion`.
-   - Ative o *toggle* para retirar do pause e clique no ícone de **Trigger (Play)**.
+6. Na lista de DAGs, ative `pipeline_ecommerce_medallion` e clique em **Trigger** para iniciar o pipeline.
 
-7. **Valide os resultados no banco de dados:**
-   - Utilize o DBeaver ou pgAdmin para conectar ao banco de dados analítico:
-     - **Host:** `localhost`
-     - **Porta:** `5433`
-     - **Database:** `camada_gold`
-     - **User:** `airflow`
-     - **Password:** `airflow`
+7. Valide os resultados no PostgreSQL usando DBeaver, pgAdmin ou outra ferramenta de sua preferência:
 
+   - Host: `localhost`
+   - Porta: `5433`
+   - Database: `camada_gold`
+   - Usuário: `airflow`
+   - Senha: `airflow`
 
-8. **Passo opcional para rodar no Windows:**
-  - 1 É necessário criar a pasta em: "C:\hadoop\bin".
-  - 2 Após a criação dessa pasta, acesse o link do repositório: https://github.com/cdarlint/winutils, escolha a versão do hadoop e baixe os dois arquivos dll: "winutils.exe" e "hadoop.dll".
-  - 3 Configure as variáveis de ambiente de usuário para enxergar essa pasta com os arquivos e estará pronto para rodar no Windows.
+## Estrutura do projeto
+
+```text
+dags/       Orquestração do pipeline com Airflow
+src/        Extração, transformações e carga dos dados
+src/images/ Diagramas e evidências das transformações
+```
